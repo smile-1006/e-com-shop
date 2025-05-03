@@ -1,15 +1,30 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <HelloWorld :msg="message"/>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import axios from 'axios'
 
 export default {
   name: 'App',
   components: {
     HelloWorld
+  },
+  data() {
+    return {
+      message: ''
+    }
+  },
+  mounted() {
+    axios.get('/api/date')
+      .then(response => {
+        this.message = `Welcome to Your Vue.js App. Current date is: ${response.data.date}`
+      })
+      .catch(error => {
+        console.error(error)
+      })
   }
 }
 </script>

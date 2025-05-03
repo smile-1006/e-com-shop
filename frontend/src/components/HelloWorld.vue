@@ -2,6 +2,9 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <p>
+      Current Date from Backend: {{ currentDate }}
+    </p>
+    <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
       <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
@@ -30,13 +33,17 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+<script setup>
+import { ref, onMounted } from 'vue';
+import api from '../api';
+
+const msg = 'Welcome to Your Vue.js App';
+const currentDate = ref('');
+
+onMounted(async () => {
+  const res = await api.get('current-date/');
+  currentDate.value = res.data.date;
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
