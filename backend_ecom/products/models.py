@@ -13,11 +13,11 @@ class Category(models.Model):
 
 class Product(models.Model):
     product_name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length= 200, unique=True, blank=True)
+    slug = models.SlugField(max_length= 200, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    image = models.ImageField(upload_to='products/')
+    # image = models.ImageField(upload_to='products/')
     sold = models.BooleanField(default=False)
     is_sale = models.BooleanField(default=False)
     date_of_sale = models.DateField(null=True, blank=True)
