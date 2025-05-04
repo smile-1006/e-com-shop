@@ -71,3 +71,42 @@ class CartManagementViewSet(viewsets.ModelViewSet):
 class OrderManagementViewSet(viewsets.ModelViewSet):
     queryset = OrderManagement.objects.all()
     serializer_class = OrderManagementSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return OrderManagement.objects.filter(user=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def create_order(self, request):
+        product_id = request.data.get('product')
+        quantity = int(request.data.get('quantity', 1))
+        payment_mode = request.data.get('payment_mode')
+        if not product_id or not payment_mode:
+            return Response({'error': 'Product ID and payment mode are required'}, status=status.HTTP_400_BAD_REQUEST)
+        order = OrderManagement.objects.create(
+            user=request.user,
+            product_id=product_id,
+            quantity=quantity,
+            price=0,  # Price can be set based on product price or other logic
+            payment_mode=payment_mode
+        )
+        serializer = self.get_serializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get'])
+    def get_order_details(self, request, pk=None):
+        try:
+            order = self.get_object()
+            serializer = self.get_serializer(order)
+            return Response(serializer.data)
+        except OrderManagement.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['post'])
+    def cancel_order(self, request, pk=None):
+        try:
+            order = self.get_object()
+            order.delete()
+            return Response({'message': 'Order cancelled successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except OrderManagement.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
