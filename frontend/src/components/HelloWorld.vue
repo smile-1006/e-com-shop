@@ -5,6 +5,7 @@
         <h1>Django Ecommerce</h1>
       </div>
       <div class="nav-right">
+        <button @click="goToCart" class="nav-button">Cart ({{ cartItemCount }})</button>
         <button @click="goToSignup" class="nav-button">Sign Up</button>
         <button @click="goToSignin" class="nav-button">Sign In</button>
       </div>
@@ -71,8 +72,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { fetchProducts, fetchCategories, addToCart as apiAddToCart } from '../api';
+import { ref, onMounted,computed } from 'vue';
+import { fetchProducts, fetchCategories, addToCart as apiAddToCart, fetchCart } from '../api';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -86,6 +87,9 @@ const filters = ref({
   price_min: null,
   price_max: null,
 });
+
+const cartItems = ref([]);
+const cartProductIds = ref(new Set());
 
 const fetchAllCategories = async () => {
   try {
@@ -113,6 +117,32 @@ const fetchFilteredProducts = async () => {
   }
 };
 
+
+const fetchCartItems = async () => {
+  try {
+    const response = await fetchCart();
+    cartItems.value = response.data;
+    cartProductIds.value = new Set(cartItems.value.map(item => item.product.id));
+  } catch (error) {
+    console.error('Failed to fetch cart items:', error);
+  }
+};
+
+const addToCart = async (product) => {
+  if (cartProductIds.value.has(product.id)) {
+    alert('Product is already in the cart');
+    return;
+  }
+  try {
+    await apiAddToCart(product.id, 1);
+    alert(`Added ${product.product_name} to cart.`);
+    await fetchCartItems();
+  } catch (error) {
+    console.error('Failed to add to cart:', error);
+    alert('Failed to add to cart.');
+  }
+};
+
 const applyFilters = () => {
   fetchFilteredProducts();
 };
@@ -128,15 +158,6 @@ const clearFilters = () => {
   fetchFilteredProducts();
 };
 
-const addToCart = async (product) => {
-  try {
-    await apiAddToCart(product.id, 1);
-    alert(`Added ${product.product_name} to cart.`);
-  } catch (error) {
-    console.error('Failed to add to cart:', error);
-    alert('Failed to add to cart.');
-  }
-};
 
 const viewDescription = (product) => {
   alert(`Description: ${product.description || 'No description available.'}`);
@@ -149,6 +170,12 @@ const goToSignup = () => {
 const goToSignin = () => {
   router.push('/signin');
 };
+
+const goToCart = () => {
+  router.push('/cart');
+};
+
+const cartItemCount = computed(() => cartItems.value.length);
 
 onMounted(() => {
   fetchAllCategories();
