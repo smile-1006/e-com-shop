@@ -1,0 +1,85 @@
+{% extends "app.html" %}
+
+{% block content %}
+<h2>Sign In</h2>
+<form id="signin-otp-form" method="post" action="/send-otp/">
+    {% csrf_token %}
+    <input type="text" id="signin-mobile-input" name="mobile" placeholder="Enter Mobile Number" required>
+    <button type="submit">Send OTP</button>
+</form>
+<div id="signin-otp-message" style="color: green; margin-top: 5px;"></div>
+
+<form id="signin-verify-form" method="post" action="/verify-otp/">
+    {% csrf_token %}
+    <input type="text" id="signin-verify-mobile-input" name="mobile" placeholder="Enter Mobile Number" required>
+    <input type="text" id="signin-otp-input" name="otp" placeholder="Enter OTP" required>
+    <button type="submit">Verify OTP</button>
+</form>
+<div id="signin-verify-message" style="color: red; margin-top: 5px;"></div>
+
+<script>
+    const signinOtpForm = document.getElementById('signin-otp-form');
+    const signinOtpMessage = document.getElementById('signin-otp-message');
+    const signinVerifyForm = document.getElementById('signin-verify-form');
+    const signinVerifyMessage = document.getElementById('signin-verify-message');
+
+    signinOtpForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        signinOtpMessage.style.color = 'green';
+        signinOtpMessage.textContent = '';
+        const mobile = document.getElementById('signin-mobile-input').value;
+        fetch('/send-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: new URLSearchParams({ mobile: mobile })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                signinOtpMessage.textContent = 'OTP sent: Check your mobile phone';
+            } else if (data.error) {
+                signinOtpMessage.style.color = 'red';
+                signinOtpMessage.textContent = data.error;
+            }
+        })
+        .catch(error => {
+            signinOtpMessage.style.color = 'red';
+            signinOtpMessage.textContent = 'Error sending OTP';
+        });
+    });
+
+    signinVerifyForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        signinVerifyMessage.style.color = 'red';
+        signinVerifyMessage.textContent = '';
+        const mobile = document.getElementById('signin-verify-mobile-input').value;
+        const otp = document.getElementById('signin-otp-input').value;
+        fetch('/verify-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: new URLSearchParams({ mobile: mobile, otp: otp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                signinVerifyMessage.style.color = 'green';
+                signinVerifyMessage.textContent = data.message;
+                // Optionally redirect or update UI
+            } else if (data.error) {
+                signinVerifyMessage.style.color = 'red';
+                signinVerifyMessage.textContent = data.error;
+            }
+        })
+        .catch(error => {
+            signinVerifyMessage.style.color = 'red';
+            signinVerifyMessage.textContent = 'Error verifying OTP';
+        });
+    });
+</script>
+{% endblock %}

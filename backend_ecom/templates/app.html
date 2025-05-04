@@ -1,21 +1,71 @@
-<!-- app.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Django Ecommerce</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        nav { background-color: #333; padding: 10px; color: #fff; }
+        nav ul { list-style: none; display: flex; gap: 20px; }
+        nav ul li { display: inline; }
+        nav ul li a { color: white; text-decoration: none; }
+
+        .container { padding: 20px; }
+        .product-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 15px; }
+        form { margin-top: 20px; }
     </style>
 </head>
 <body>
+
+<nav style="display: flex; justify-content: space-between; align-items: center; background-color: #333; padding: 10px; color: white;">
+    <div>
+        <a href="/" style="color: white; text-decoration: none; font-weight: bold; font-size: 20px;">Django Ecommerce</a>
+    </div>
+    <div>
+        <form id="search-form" method="get" action="/" style="display: inline;">
+            <input type="text" id="search-box" name="search" placeholder="Search products..." style="padding: 5px; border-radius: 4px; border: none; width: 200px;">
+        </form>
+        <a href="/signup" style="color: white; margin-left: 20px; text-decoration: none;">Sign Up</a>
+        <a href="/signin" style="color: white; margin-left: 10px; text-decoration: none;">Sign In</a>
+    </div>
+</nav>
+<div style="display: flex;">
+    <aside style="width: 250px; padding: 20px; background-color: #f4f4f4; height: 100vh;">
+        <h3>Filters</h3>
+        <form method="get" action="/">
+            <label for="category">Category:</label>
+            <select name="category" id="category" style="width: 100%; margin-bottom: 10px;">
+                <option value="">All</option>
+                {% for cat in categories %}
+                <option value="{{ cat.category_name }}" {% if selected_category == cat.category_name %}selected{% endif %}>{{ cat.category_name }}</option>
+                {% endfor %}
+            </select>
+ 
+            <label for="sold">Sold:</label>
+            <select name="sold" id="sold" style="width: 100%; margin-bottom: 10px;">
+                <option value="">All</option>
+                <option value="true" {% if sold == 'true' %}selected{% endif %}>Sold</option>
+                <option value="false" {% if sold == 'false' %}selected{% endif %}>Available</option>
+            </select>
+ 
+            <label for="price_min">Price Min:</label>
+            <input type="number" name="price_min" id="price_min" value="{{ price_min|default_if_none:'' }}" step="0.01" min="0" style="width: 100%; margin-bottom: 10px;">
+ 
+            <label for="price_max">Price Max:</label>
+            <input type="number" name="price_max" id="price_max" value="{{ price_max|default_if_none:'' }}" step="0.01" min="0" style="width: 100%; margin-bottom: 10px;">
+ 
+            <button type="submit" style="width: 48%; margin-right: 4%;">Apply Filters</button>
+            <a href="/" style="display: inline-block; width: 48%; text-align: center; background-color: #ccc; padding: 8px 0; border-radius: 4px; text-decoration: none; color: black;">Clear Filters</a>
+        </form>
+    </aside>
+    <main style="flex-grow: 1; padding: 20px;">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<div class="container">
     <h1>Welcome to Django Ecommerce</h1>
-    {% block content %}
+
     <div class="product-list">
         {% for product in products %}
         <div class="product-card">
@@ -23,10 +73,96 @@
             <p>Price: ${{ product.price }}</p>
             <p>Category: {{ product.category }}</p>
             <p>Slug: {{ product.slug }}</p>
-            <a class="view-description" href="/{{ product.slug }}/">View Description</a>
+        <a class="view-description" href="/{{ product.slug }}/">View Description</a>
         </div>
         {% endfor %}
     </div>
-    {% endblock %}
+
+    <!-- Signup / Send OTP Form -->
+    <h2 id="signup">Signup / Send OTP</h2>
+    <form id="otp-form" method="post" action="/send-otp/">
+        {% csrf_token %}
+        <input type="text" id="mobile-input" name="mobile" placeholder="Enter Mobile Number" required>
+        <button type="submit">Send OTP</button>
+    </form>
+    <div id="otp-message" style="color: green; margin-top: 5px;"></div>
+
+    <!-- Verify OTP / Login Form -->
+    <h2 id="signin">Verify OTP / Login</h2>
+    <form id="verify-form" method="post" action="/verify-otp/">
+        {% csrf_token %}
+        <input type="text" id="verify-mobile-input" name="mobile" placeholder="Enter Mobile Number" required>
+        <input type="text" id="otp-input" name="otp" placeholder="Enter OTP" required>
+        <button type="submit">Verify OTP</button>
+    </form>
+    <div id="verify-message" style="color: red; margin-top: 5px;"></div>
+
+    <script>
+        const otpForm = document.getElementById('otp-form');
+        const otpMessage = document.getElementById('otp-message');
+        const verifyForm = document.getElementById('verify-form');
+        const verifyMessage = document.getElementById('verify-message');
+
+        otpForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            otpMessage.style.color = 'green';
+            otpMessage.textContent = '';
+            const mobile = document.getElementById('mobile-input').value;
+            fetch('/send-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({ mobile: mobile })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    otpMessage.textContent = 'OTP sent: ' + (data.otp ? data.otp : 'Check console');
+                    // For testing, show OTP if returned
+                } else if (data.error) {
+                    otpMessage.style.color = 'red';
+                    otpMessage.textContent = data.error;
+                }
+            })
+            .catch(error => {
+                otpMessage.style.color = 'red';
+                otpMessage.textContent = 'Error sending OTP';
+            });
+        });
+
+        verifyForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            verifyMessage.style.color = 'red';
+            verifyMessage.textContent = '';
+            const mobile = document.getElementById('verify-mobile-input').value;
+            const otp = document.getElementById('otp-input').value;
+            fetch('/verify-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({ mobile: mobile, otp: otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    verifyMessage.style.color = 'green';
+                    verifyMessage.textContent = data.message;
+                } else if (data.error) {
+                    verifyMessage.style.color = 'red';
+                    verifyMessage.textContent = data.error;
+                }
+            })
+            .catch(error => {
+                verifyMessage.style.color = 'red';
+                verifyMessage.textContent = 'Error verifying OTP';
+            });
+        });
+    </script>
+</div>
+
 </body>
 </html>

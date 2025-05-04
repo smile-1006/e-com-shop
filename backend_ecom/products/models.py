@@ -30,7 +30,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
-    
 
 class CartManagement(models.Model):
     user = models.ForeignKey('app.User', on_delete=models.CASCADE)

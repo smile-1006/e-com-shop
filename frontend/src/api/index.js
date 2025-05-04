@@ -5,3 +5,11 @@ const api = axios.create({
 });
 
 export default api;
+
+export function sendOtp(mobile) {
+  return api.post('send-otp/', { mobile });
+}
+
+export function verifyOtp(mobile, otp) {
+  return api.post('verify-otp/', { mobile, otp });
+}

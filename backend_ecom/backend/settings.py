@@ -27,10 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-]
-
 
 # Application definition
 
@@ -139,3 +135,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+# Twilio SMS settings
+TWILIO_ACCOUNT_SID = 'your_twilio_account_sid_here'
+TWILIO_AUTH_TOKEN = 'your_twilio_auth_token_here'
+TWILIO_PHONE_NUMBER = '+919752991064'  # Your Twilio phone number
