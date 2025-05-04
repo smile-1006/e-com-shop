@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.utils.timezone import now
-from products.models import Product, Category, Order, OrderItem
+from products.models import Product, Category, OrderManagement as Order, OrderItem
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import get_user_model, login
@@ -79,15 +79,18 @@ def send_otp(request):
         mobile = request.POST.get('mobile')
         if not mobile:
             return JsonResponse({'error': 'Mobile number is required'}, status=400)
+        # Format mobile number to E.164 if not already
+        if not mobile.startswith('+'):
+            mobile = '+91' + mobile  # Assuming India country code
         otp = str(random.randint(100000, 999999))
         expiry = time.time() + 300  # OTP valid for 5 minutes
         otp_store[mobile] = (otp, expiry)
         # Send OTP via Twilio SMS
         try:
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            client = Client('AC1693f9872f947400100704ad4756a746', '7f4f6a3d3cdaf022e284a1273b02e9ad')
             message = client.messages.create(
-                body=f"Your OTP is {otp}",
-                from_=settings.TWILIO_PHONE_NUMBER,
+                body=f"Your OTP of Dango ecom: {otp}",
+                from_='+16614656149',
                 to=mobile
             )
         except Exception as e:
@@ -98,24 +101,31 @@ def send_otp(request):
 @csrf_exempt
 def verify_otp(request):
     if request.method == 'POST':
-        mobile = request.POST.get('mobile')
-        otp = request.POST.get('otp')
-        if not mobile or not otp:
-            return JsonResponse({'error': 'Mobile and OTP are required'}, status=400)
-        stored_otp, expiry = otp_store.get(mobile, (None, None))
-        if stored_otp is None:
-            return JsonResponse({'error': 'OTP not found. Please request a new one.'}, status=400)
-        if time.time() > expiry:
+        try:
+            mobile = request.POST.get('mobile')
+            otp = request.POST.get('otp')
+            if not mobile or not otp:
+                return JsonResponse({'error': 'Mobile and OTP are required'}, status=400)
+            # Format mobile number to E.164 if not already
+            if not mobile.startswith('+'):
+                mobile = '+91' + mobile  # Assuming India country code
+            stored_otp, expiry = otp_store.get(mobile, (None, None))
+            if stored_otp is None:
+                return JsonResponse({'error': 'OTP not found. Please request a new one.'}, status=400)
+            if time.time() > expiry:
+                del otp_store[mobile]
+                return JsonResponse({'error': 'OTP expired. Please request a new one.'}, status=400)
+            if otp.strip() != stored_otp.strip():
+                return JsonResponse({'error': 'Invalid OTP'}, status=400)
+            # OTP is valid, authenticate or create user
+            user, created = User.objects.get_or_create(mobile=mobile)
+            # Log the user in (session-based)
+            login(request, user)
             del otp_store[mobile]
-            return JsonResponse({'error': 'OTP expired. Please request a new one.'}, status=400)
-        if otp != stored_otp:
-            return JsonResponse({'error': 'Invalid OTP'}, status=400)
-        # OTP is valid, authenticate or create user
-        user, created = User.objects.get_or_create(mobile=mobile)
-        # Log the user in (session-based)
-        login(request, user)
-        del otp_store[mobile]
-        return JsonResponse({'message': 'OTP verified, user logged in', 'user': {'mobile': user.mobile, 'full_name': user.full_name}})
+            full_name = getattr(user, 'full_name', '')
+            return JsonResponse({'message': 'OTP verified, user logged in', 'user': {'mobile': user.mobile, 'full_name': full_name}})
+        except Exception as e:
+            return JsonResponse({'error': f'Error verifying OTP: {str(e)}'}, status=500)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def current_date(request):

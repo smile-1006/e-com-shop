@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="auth-container">
     <h2>Sign In</h2>

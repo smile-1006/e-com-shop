@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Product, CartManagement, OrderManagement
+from .models import Product, CartManagement, OrderManagement, OrderItem
 from .serializers import ProductSerializer, CartManagementSerializer, OrderManagementSerializer
 
 # Create your views here.
