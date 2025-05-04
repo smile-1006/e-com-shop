@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1>Orders</h1>
+    <h1>My Orders</h1>
     <div v-for="order in orders" :key="order.id">
-      Order #{{ order.id }} - {{ order.created_at }}
+      Order #{{ order.id }} - {{ order.status }}
     </div>
   </div>
 </template>
@@ -17,4 +17,10 @@ onMounted(async () => {
   const res = await api.get('orders/');
   orders.value = res.data;
 });
+</script>
+
+<script>
+export default {
+  name: 'UserOrder'
+}
 </script>

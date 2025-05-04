@@ -18,3 +18,9 @@ onMounted(async () => {
   cartItems.value = res.data;
 });
 </script>
+
+<script>
+export default {
+  name: 'UserCart'
+}
+</script>

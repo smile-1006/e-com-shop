@@ -17,3 +17,31 @@ export function verifyOtp(mobile, otp) {
 export function fetchMostBoughtProducts() {
   return api.get('products/most_bought/');
 }
+
+export function fetchProducts(params) {
+  return api.get('products/', { params });
+}
+
+export function fetchCategories() {
+  return api.get('categories/');
+}
+
+export function fetchCart() {
+  return api.get('cart/');
+}
+
+export function addToCart(productId, quantity = 1) {
+  return api.post('cart/add_to_cart/', { product: productId, quantity });
+}
+
+export function increaseCartQuantity(cartItemId) {
+  return api.post(`cart/${cartItemId}/increase_quantity/`);
+}
+
+export function decreaseCartQuantity(cartItemId) {
+  return api.post(`cart/${cartItemId}/decrease_quantity/`);
+}
+
+export function removeFromCart(cartItemId) {
+  return api.delete(`cart/${cartItemId}/remove_from_cart/`);
+}

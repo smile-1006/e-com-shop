@@ -137,6 +137,6 @@ REST_FRAMEWORK = {
 }
 
 # Twilio SMS settings
-TWILIO_ACCOUNT_SID = 'your_twilio_account_sid_here'
-TWILIO_AUTH_TOKEN = 'your_twilio_auth_token_here'
-TWILIO_PHONE_NUMBER = '+919752991064'  # Your Twilio phone number
+TWILIO_ACCOUNT_SID = 'ACa3e7883557cb9cdafdaf96f2d5a4e6e5'
+TWILIO_AUTH_TOKEN = 'f1eca2bd1fea182d0f4f50b31db36244'
+TWILIO_PHONE_NUMBER = '+16614656149'  # Your Twilio phone number
