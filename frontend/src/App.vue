@@ -1,16 +1,19 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
   <HelloWorld :msg="message"/>
+  <MostBoughtProducts />
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import MostBoughtProducts from './components/MostBoughtProducts.vue'
 import axios from 'axios'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    MostBoughtProducts
   },
   data() {
     return {

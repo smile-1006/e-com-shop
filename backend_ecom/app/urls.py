@@ -2,7 +2,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
-from .views import app, product_detail, send_otp, verify_otp, firstpage, signup, signin
+from .views import app, product_detail, send_otp, verify_otp, firstpage, signup, signin, current_date
 from products.views import ProductViewSet, CartManagementViewSet, OrderManagementViewSet
 
 router = DefaultRouter()
@@ -18,6 +18,7 @@ urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('send-otp/', send_otp, name='send_otp'),
     path('verify-otp/', verify_otp, name='verify_otp'),
+    path('current-date/', current_date, name='current_date'),
 ]
 
 urlpatterns += router.urls

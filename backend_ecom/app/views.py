@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.utils.timezone import now
 from products.models import Product, Category
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -61,8 +63,13 @@ def signup(request):
 def signin(request):
     return render(request, 'signin.html')
 
+from django.http import Http404
+
 def product_detail(request, slug):
-    product = Product.objects.get(slug=slug)
+    try:
+        product = Product.objects.get(slug=slug)
+    except Product.DoesNotExist:
+        raise Http404("Product does not exist")
     context = { 'product': product }
     return render(request, 'product_detail.html', context)
 
@@ -110,3 +117,7 @@ def verify_otp(request):
         del otp_store[mobile]
         return JsonResponse({'message': 'OTP verified, user logged in', 'user': {'mobile': user.mobile, 'full_name': user.full_name}})
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def current_date(request):
+    from django.utils.timezone import now
+    return JsonResponse({'date': now().strftime('%Y-%m-%d')})
