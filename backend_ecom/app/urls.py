@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
 from .views import app, product_detail, send_otp, verify_otp, firstpage, signup, signin, current_date, get_cart, add_to_cart, increase_quantity, decrease_quantity, remove_from_cart, place_order, get_orders, cancel_order
-from products.views import ProductViewSet, CartManagementViewSet, OrderManagementViewSet
+from products.views import ProductViewSet, CartManagementViewSet, OrderManagementViewSet, CategoryListView
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet)
@@ -28,7 +28,7 @@ urlpatterns = [
     path('orders/place_order/', place_order, name='place_order'),
     path('orders/', get_orders, name='get_orders'),
     path('orders/<int:order_id>/cancel_order/', cancel_order, name='cancel_order'),
-
+    path('categories/', CategoryListView.as_view(), name='categories'),
 ]
 
 urlpatterns += router.urls

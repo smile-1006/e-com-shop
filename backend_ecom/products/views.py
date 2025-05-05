@@ -33,6 +33,17 @@ class ProductViewSet(viewsets.ModelViewSet):
             product['total_quantity'] = quantity_map.get(product['id'], 0)
         return Response(product_data)
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import Category
+from .serializers import CategorySerializer
+
+class CategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
     @action(detail=False, methods=['get'])
     def get_by_name(self, request):
         product_name = request.query_params.get('name')

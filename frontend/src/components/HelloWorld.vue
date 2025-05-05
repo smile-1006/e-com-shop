@@ -1,20 +1,21 @@
 <template>
-  <div>
+  <div class="app-wrapper">
     <nav class="top-nav">
       <div class="nav-left">
-        <h1>Django Ecommerce</h1>
+        <h1 class="logo">Django Ecommerce</h1>
       </div>
       <div class="nav-right">
-        <button @click="goToCart" class="nav-button">Cart ({{ cartItemCount }})</button>
-        <button @click="goToSignup" class="nav-button">Sign Up</button>
-        <button @click="goToSignin" class="nav-button">Sign In</button>
+        <button @click="goToCart" class="nav-button">🛒 Cart ({{ cartItemCount }})</button>
+        <button @click="goToSignup" class="nav-button">🔒 Sign Up</button>
+        <button @click="goToSignin" class="nav-button">🔑 Sign In</button>
       </div>
     </nav>
+
     <div class="main-content">
       <aside class="side-nav">
-        <h2>Filters</h2>
+        <h2>Filter Products</h2>
         <div class="filter-group">
-          <label>Category:</label>
+          <label>Category</label>
           <select v-model="filters.category">
             <option value="">All</option>
             <option v-for="category in categories" :key="category.id" :value="category.category_name">
@@ -23,7 +24,7 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Sold:</label>
+          <label>Sold Status</label>
           <select v-model="filters.sold">
             <option value="">All</option>
             <option value="true">Sold</option>
@@ -31,39 +32,37 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Price Min:</label>
+          <label>Min Price ($)</label>
           <input type="number" v-model.number="filters.price_min" min="0" />
         </div>
         <div class="filter-group">
-          <label>Price Max:</label>
+          <label>Max Price ($)</label>
           <input type="number" v-model.number="filters.price_max" min="0" />
         </div>
-        <div class="filter-group">
-          <button @click="applyFilters">Apply Filters</button>
-          <button @click="clearFilters">Clear Filters</button>
+        <div class="filter-actions">
+          <button @click="applyFilters">Apply</button>
+          <button @click="clearFilters" class="clear-btn">Clear</button>
         </div>
       </aside>
+
       <section class="content-area">
         <div class="search-bar">
-          <input type="text" v-model="searchQuery" placeholder="Search products..." @keyup.enter="applyFilters" />
+          <input type="text" v-model="searchQuery" placeholder="🔍 Search products..." @keyup.enter="applyFilters" />
           <button @click="applyFilters">Search</button>
         </div>
-        <h2>Product List</h2>
+        <h2 class="section-heading">Available Products</h2>
         <div class="products-grid">
           <div v-for="product in products" :key="product.id" class="product-card">
-            <h3>{{ product.product_name }}</h3>
-            <p>Price: ${{ product.price }}</p>
-            <p>Category: {{ product.category.category_name }}</p>
-            <button @click="viewDescription(product)">View Description</button>
-            <button @click="addToCart(product)">Add to Cart</button>
-            <p>
-              <span
-                class="sale-badge"
-                :class="product.sold ? 'sold' : 'available'"
-              >
-                {{ product.sold ? 'Sold' : 'Available' }}
-              </span>
-            </p>
+            <h3 class="product-name">{{ product.product_name }}</h3>
+            <p class="product-price">$ {{ product.price.toFixed(2) }}</p>
+            <p class="product-category">Category: {{ product.category.category_name }}</p>
+            <div class="product-actions">
+              <button @click="viewDescription(product)" class="desc-btn">View Description</button>
+              <button @click="addToCart(product)">Add to Cart</button>
+            </div>
+            <span class="status-badge" :class="product.sold ? 'sold' : 'available'">
+              {{ product.sold ? 'Sold Out' : 'In Stock' }}
+            </span>
           </div>
         </div>
       </section>
@@ -72,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { fetchProducts, fetchCategories, addToCart as apiAddToCart, fetchCart } from '../api';
 import { useRouter } from 'vue-router';
 
@@ -117,7 +116,6 @@ const fetchFilteredProducts = async () => {
   }
 };
 
-
 const fetchCartItems = async () => {
   try {
     const response = await fetchCart();
@@ -158,7 +156,6 @@ const clearFilters = () => {
   fetchFilteredProducts();
 };
 
-
 const viewDescription = (product) => {
   alert(`Description: ${product.description || 'No description available.'}`);
 };
@@ -184,109 +181,170 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.app-wrapper {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  min-height: 100vh;
+}
+
 .top-nav {
   display: flex;
   justify-content: space-between;
-  background-color: #42b983;
-  padding: 10px 20px;
+  align-items: center;
+  background-color: #1e90ff;
+  padding: 15px 30px;
   color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.nav-left h1 {
-  margin: 0;
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
 }
 
-.nav-right button.nav-button {
+.nav-button {
+  margin-left: 20px;
+  background: #ffffff22;
+  border: 1px solid white;
   color: white;
-  margin-left: 15px;
-  background: none;
-  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 1rem;
-  padding: 0;
+  transition: 0.3s;
 }
 
-.nav-right button.nav-button:hover {
-  text-decoration: underline;
+.nav-button:hover {
+  background-color: #ffffff33;
 }
 
 .main-content {
   display: flex;
-  margin-top: 20px;
+  padding: 20px;
+  gap: 20px;
 }
 
 .side-nav {
-  width: 220px;
-  padding: 15px;
-  border-right: 1px solid #ddd;
+  width: 260px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .filter-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .filter-group label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .filter-group input,
 .filter-group select {
   width: 100%;
-  padding: 5px;
-  box-sizing: border-box;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
 }
 
-.filter-group button {
-  margin-right: 10px;
+.filter-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-actions button {
   padding: 8px 12px;
-  background-color: #42b983;
+  border-radius: 6px;
+  background-color: #1e90ff;
   border: none;
   color: white;
-  border-radius: 4px;
   cursor: pointer;
 }
 
-.filter-group button:hover {
-  background-color: #369870;
+.clear-btn {
+  background-color: #888;
 }
 
 .content-area {
-  flex-grow: 1;
-  padding: 15px;
+  flex: 1;
 }
 
 .search-bar {
-  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .search-bar input {
-  padding: 8px;
-  width: 250px;
-  margin-right: 10px;
+  flex: 1;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+.section-heading {
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
 }
 
 .product-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s ease;
 }
 
-.sale-badge {
-  padding: 5px 10px;
-  border-radius: 12px;
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.product-price {
+  color: #1e90ff;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.product-category {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.product-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+button.desc-btn {
+  background-color: #6c63ff;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 20px;
   color: white;
+  font-size: 0.8rem;
   font-weight: bold;
 }
 
@@ -296,19 +354,5 @@ onMounted(() => {
 
 .available {
   background-color: green;
-}
-
-button {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background-color: #42b983;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #369870;
 }
 </style>
