@@ -44,6 +44,31 @@ class CategoryListView(APIView):
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
+# Removed get_by_name from CategoryListView and moved to ProductViewSet
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = ['product_name']
+    ordering_fields = ['price']
+    filterset_fields = ['category__category_name', 'sold', 'price']
+
+    @action(detail=False, methods=['get'])
+    def most_bought(self, request):
+        # Aggregate total quantity ordered per product
+        from .models import OrderManagement
+        top_products = OrderManagement.objects.values('product').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')[:10]
+        product_ids = [item['product'] for item in top_products]
+        products = Product.objects.filter(id__in=product_ids)
+        serializer = self.get_serializer(products, many=True)
+        # Attach total_quantity to each product in response
+        product_data = serializer.data
+        quantity_map = {item['product']: item['total_quantity'] for item in top_products}
+        for product in product_data:
+            product['total_quantity'] = quantity_map.get(product['id'], 0)
+        return Response(product_data)
+
     @action(detail=False, methods=['get'])
     def get_by_name(self, request):
         product_name = request.query_params.get('name')

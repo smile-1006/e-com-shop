@@ -14,7 +14,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import api from '../api';
+import { getProductByName } from '../api';
 
 const route = useRoute();
 const product = ref(null);
@@ -22,7 +22,7 @@ const error = ref(null);
 
 const fetchProductByName = async (name) => {
   try {
-    const response = await api.get('products/get_by_name/', { params: { name } });
+    const response = await getProductByName(name);
     product.value = response.data;
   } catch (err) {
     error.value = err.response?.data?.error || 'Failed to fetch product details.';

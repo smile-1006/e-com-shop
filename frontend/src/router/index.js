@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// import Home from '../views/Home.vue';
-// import ProductList from '../views/ProductList.vue';
+import ProductList from '../components/ProductList.vue';
 import Cart from '../views/Cart.vue';
 import Order from '../views/Order.vue';
 import Signin from '../views/Signin.vue';
@@ -9,8 +8,7 @@ import UserSignin from '../views/UserSignin.vue';
 import ProductDetail from '../views/ProductDetail.vue';
 
 const routes = [
-  // { path: '/', component: Home },
-  // { path: '/products', component: ProductList },
+  { path: '/', component: ProductList },
   { path: '/cart', component: Cart },
   { path: '/orders', component: Order },
   { path: '/signin', component: UserSignin },

@@ -54,7 +54,7 @@
         <div class="products-grid">
           <div v-for="product in products" :key="product.id" class="product-card">
             <h3 class="product-name">{{ product.product_name }}</h3>
-            <p class="product-price">$ {{ product.price.toFixed(2) }}</p>
+            <p class="product-price">$ {{ Number(product.price).toFixed(2) }}</p>
             <p class="product-category">Category: {{ product.category.category_name }}</p>
             <div class="product-actions">
               <button @click="viewDescription(product)" class="desc-btn">View Description</button>
