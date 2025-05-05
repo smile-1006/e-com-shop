@@ -33,6 +33,18 @@ class ProductViewSet(viewsets.ModelViewSet):
             product['total_quantity'] = quantity_map.get(product['id'], 0)
         return Response(product_data)
 
+    @action(detail=False, methods=['get'])
+    def get_by_name(self, request):
+        product_name = request.query_params.get('name')
+        if not product_name:
+            return Response({'error': 'Product name is required'}, status=400)
+        try:
+            product = Product.objects.get(product_name=product_name)
+            serializer = self.get_serializer(product)
+            return Response(serializer.data)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found'}, status=404)
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 

@@ -1,10 +1,12 @@
 <template>
   <div class="auth-container">
     <h2>Sign Up</h2>
-    <form @submit.prevent="sendOtpHandler">
+    <form v-if="!otpSent" @submit.prevent="sendOtpHandler">
+      <label for="name">Full Name:</label>
+      <input id="name" v-model="fullName" type="text" placeholder="Your full name" required />
       <label for="mobile">Mobile Number:</label>
       <input id="mobile" v-model="mobile" type="text" placeholder="+919876543210" required />
-      <button type="submit" :disabled="otpSent">Send OTP</button>
+      <button type="submit">Send OTP</button>
     </form>
 
     <form v-if="otpSent" @submit.prevent="verifyOtpHandler">
@@ -21,13 +23,16 @@
 import { ref } from 'vue';
 import { sendOtp, verifyOtp } from '../api';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const mobile = ref('');
+const fullName = ref('');
 const otp = ref('');
 const otpSent = ref(false);
 const message = ref('');
 const error = ref(false);
 const router = useRouter();
+const store = useStore();
 
 const sendOtpHandler = async () => {
   message.value = '';
@@ -46,9 +51,11 @@ const verifyOtpHandler = async () => {
   message.value = '';
   error.value = false;
   try {
-    await verifyOtp(mobile.value, otp.value);
+    const response = await verifyOtp(mobile.value, otp.value, fullName.value);
     message.value = 'OTP verified. You are now logged in.';
-    // Redirect to home or product listing page
+    if (response.data && response.data.user) {
+      store.dispatch('user/login', response.data.user);
+    }
     router.push('/');
   } catch (err) {
     error.value = true;

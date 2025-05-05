@@ -104,6 +104,7 @@ def verify_otp(request):
         try:
             mobile = request.POST.get('mobile')
             otp = request.POST.get('otp')
+            full_name = request.POST.get('full_name', '')  # Get full_name from request, default empty string
             if not mobile or not otp:
                 return JsonResponse({'error': 'Mobile and OTP are required'}, status=400)
             # Format mobile number to E.164 if not already
@@ -119,6 +120,9 @@ def verify_otp(request):
                 return JsonResponse({'error': 'Invalid OTP'}, status=400)
             # OTP is valid, authenticate or create user
             user, created = User.objects.get_or_create(mobile=mobile)
+            if created and full_name:
+                user.full_name = full_name
+                user.save()
             # Log the user in (session-based)
             login(request, user)
             del otp_store[mobile]

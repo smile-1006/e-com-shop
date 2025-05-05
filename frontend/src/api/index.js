@@ -10,8 +10,12 @@ export function sendOtp(mobile) {
   return api.post('send-otp/', { mobile });
 }
 
-export function verifyOtp(mobile, otp) {
-  return api.post('verify-otp/', { mobile, otp });
+export function verifyOtp(mobile, otp, full_name = '') {
+  return api.post('verify-otp/', { mobile, otp, full_name });
+}
+
+export function getProductByName(name) {
+  return api.get('products/get_by_name/', { params: { name } });
 }
 
 export function fetchMostBoughtProducts() {

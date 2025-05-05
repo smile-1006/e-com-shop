@@ -6,6 +6,7 @@ import Order from '../views/Order.vue';
 import Signin from '../views/Signin.vue';
 import Signup from '../views/Signup.vue';
 import UserSignin from '../views/UserSignin.vue';
+import ProductDetail from '../views/ProductDetail.vue';
 
 const routes = [
   // { path: '/', component: Home },
@@ -15,6 +16,7 @@ const routes = [
   { path: '/signin', component: UserSignin },
   { path: '/signup', component: Signup },
   { path: '/signin', component: Signin },
+  { path: '/product/:name', component: ProductDetail, props: true },
 ];
 
 const router = createRouter({

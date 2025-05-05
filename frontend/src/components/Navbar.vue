@@ -7,14 +7,33 @@
         </a>
       </li>
     </ul>
+    <div class="auth-links">
+      <template v-if="isAuthenticated">
+        <span>Welcome, {{ fullName }}</span>
+        <button @click="logout">Logout</button>
+      </template>
+      <template v-else>
+        <router-link to="/signin">Sign In</router-link>
+        <router-link to="/signup">Sign Up</router-link>
+      </template>
+    </div>
   </nav>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { fetchCategories } from '../api';
+import { useStore } from 'vuex';
 
 const categories = ref([]);
+const store = useStore();
+
+const isAuthenticated = computed(() => store.getters['user/isAuthenticated']);
+const fullName = computed(() => store.getters['user/full_name']);
+
+const logout = () => {
+  store.dispatch('user/logout');
+};
 
 const selectCategory = (categoryName) => {
   // Emit event to parent to filter products by category
@@ -47,6 +66,9 @@ export default {
 .nav-bar {
   background-color: #42b983;
   padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .category-list {
@@ -65,5 +87,31 @@ export default {
 
 .category-list li a:hover {
   text-decoration: underline;
+}
+
+.auth-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  color: white;
+}
+
+.auth-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+.auth-links button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0;
 }
 </style>
