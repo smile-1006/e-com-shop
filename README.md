@@ -5,7 +5,10 @@ This project is a full-stack e-commerce web application built with **Django** as
 
 ---
 ## Live Backend Deployment
-Access the production backend here 👉 https://e-com-shop.onrender.com
+Access the backend production here 👉 https://e-com-shop.onrender.com/
+
+## Live Frontend Deployment
+Access the Frontend Production here 👉 https://e-com-shop-kappa.vercel.app/
 
 ## 🛠️ Technologies Used
 
