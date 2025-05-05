@@ -4,7 +4,7 @@
 This project is a full-stack e-commerce web application built with **Django** as the backend and **Vue.js** as the frontend. It supports product browsing, filtering, cart management, and user authentication via mobile OTP. The app provides a modern, responsive UI and a RESTful API for seamless interaction between frontend and backend.
 
 ---
-##Live Backend Deployment:
+## Live Backend Deployment
 Access the production backend here 👉 https://e-com-shop.onrender.com
 
 ## 🛠️ Technologies Used
